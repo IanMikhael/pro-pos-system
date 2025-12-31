@@ -333,23 +333,10 @@ def run_query(query, params=None):
         st.error(f"Database Error: {e}")
         return None
 
-# # --- FUNGSI SETTINGS WA ---
-# def get_wa_number():
-#     res = run_query("SELECT wa_number FROM settings WHERE id = 1")
-#     return res[0]['wa_number'] if res else "628123456789"
-
+# --- FUNGSI SETTINGS WA ---
 def get_wa_number():
     res = run_query("SELECT wa_number FROM settings WHERE id = 1")
-    if res:
-        raw_num = res[0]['wa_number']
-        # MEMBERSIHKAN NOMOR: Menghapus spasi, +, dan -, serta memastikan mulai dengan 62
-        clean_num = ''.join(filter(str.isdigit, str(raw_num)))
-        if clean_num.startswith('0'):
-            clean_num = '62' + clean_num[1:]
-        return clean_num
-    # return "6289624501390" # Nomor cadangan
-
-
+    return res[0]['wa_number'] if res else "628123456789"
 
 def login_admin(username, password):
     user = run_query("SELECT * FROM admins WHERE username = %s AND password = %s", (username, password))
@@ -464,26 +451,25 @@ def main():
                 #         text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
                 #         st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
                 
-                if st.button("Bersihkan Keranjang", use_container_width=True):
-                    st.session_state.cart = []; st.rerun()
-
-                # Ganti blok tombol WA dengan ini agar aman di hosting mana pun
                 if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
-                    if not nama_pembeli:
-                        st.error("Masukkan nama dulu min!")
-                    else:
-                        wa_target = get_wa_number()
-                        encoded_text = urllib.parse.quote(f"Halo, saya {nama_pembeli} mau order...")
-                        wa_url = f"https://api.whatsapp.com/send?phone={wa_target}&text={encoded_text}"
-                        
-                        # Tampilkan link manual yang akan membuka tab baru (pasti berhasil)
-                        st.markdown(f"""
-                            <a href="{wa_url}" target="_blank" style="text-decoration:none;">
-                                <div style="text-align:center; padding:15px; background-color:#25d366; color:white; border-radius:10px; font-weight:bold;">
-                                    KLIK DISINI UNTUK KIRIM WA
-                                </div>
-                            </a>
-                        """, unsafe_allow_html=True)
+    if not nama_pembeli:
+        st.error("Masukkan nama dulu min!")
+    else:
+        wa_target = get_wa_number()
+        list_belanja = "\n".join([
+            f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}"
+            for j, it in enumerate(st.session_state.cart)
+        ])
+        text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
+
+        # ✅ INI PENGGANTINYA
+        wa_url = f"https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}"
+        st.success("Order siap dikirim via WhatsApp 👇")
+        st.link_button("📲 Lanjutkan ke WhatsApp", wa_url, use_container_width=True)
+
+
+        if st.button("Bersihkan Keranjang", use_container_width=True):
+                    st.session_state.cart = []; st.rerun()
 
 #login admin
     elif menu == "🔐 Login Admin":
