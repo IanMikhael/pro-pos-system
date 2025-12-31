@@ -300,13 +300,23 @@ def process_image(uploaded_file):
 #         host="localhost", user="root", password="", database="pos_system"
 #     )
 
+# def get_connection():
+#     return mysql.connector.connect(
+#         host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
+#         port=4000,
+#         user="2i4trFqj4YhT8Uo.root",
+#         password="366deYjPy9LOrl64",
+#         database="test",
+#         autocommit=True
+#     )
+
 def get_connection():
     return mysql.connector.connect(
-        host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-        port=4000,
-        user="2i4trFqj4YhT8Uo.root",
-        password="366deYjPy9LOrl64",
-        database="test",
+        host=st.secrets["mysql"]["host"],
+        port=st.secrets["mysql"]["port"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        database=st.secrets["mysql"]["database"],
         autocommit=True
     )
 
