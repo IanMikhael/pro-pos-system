@@ -333,21 +333,21 @@ def run_query(query, params=None):
         st.error(f"Database Error: {e}")
         return None
 
-# --- FUNGSI SETTINGS WA ---
-def get_wa_number():
-    res = run_query("SELECT wa_number FROM settings WHERE id = 1")
-    return res[0]['wa_number'] if res else "628123456789"
-
+# # --- FUNGSI SETTINGS WA ---
 # def get_wa_number():
 #     res = run_query("SELECT wa_number FROM settings WHERE id = 1")
-#     if res:
-#         raw_num = res[0]['wa_number']
-#         # MEMBERSIHKAN NOMOR: Menghapus spasi, +, dan -, serta memastikan mulai dengan 62
-#         clean_num = ''.join(filter(str.isdigit, str(raw_num)))
-#         if clean_num.startswith('0'):
-#             clean_num = '62' + clean_num[1:]
-#         return clean_num
-#     # return "6289624501390" # Nomor cadangan
+#     return res[0]['wa_number'] if res else "628123456789"
+
+def get_wa_number():
+    res = run_query("SELECT wa_number FROM settings WHERE id = 1")
+    if res:
+        raw_num = res[0]['wa_number']
+        # MEMBERSIHKAN NOMOR: Menghapus spasi, +, dan -, serta memastikan mulai dengan 62
+        clean_num = ''.join(filter(str.isdigit, str(raw_num)))
+        if clean_num.startswith('0'):
+            clean_num = '62' + clean_num[1:]
+        return clean_num
+    # return "6289624501390" # Nomor cadangan
 
 
 
