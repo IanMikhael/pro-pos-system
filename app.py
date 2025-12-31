@@ -444,35 +444,35 @@ def main():
                 st.subheader(f"Total: Rp {subtotal:,}")
                 nama_pembeli = st.text_input("Nama Anda", placeholder="Contoh: Budi")
                 
-                # if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
-                #     if not nama_pembeli:
-                #         st.error("Masukkan nama dulu min!")
-                #     else:
-                #         wa_target = get_wa_number()
-                #         list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
-                #         text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
-                #         st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
-                
-                # if st.button("Bersihkan Keranjang", use_container_width=True):
-                #     st.session_state.cart = []; st.rerun()
-
-                # Ganti blok tombol WA dengan ini agar aman di hosting mana pun
                 if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
                     if not nama_pembeli:
                         st.error("Masukkan nama dulu min!")
                     else:
                         wa_target = get_wa_number()
-                        encoded_text = urllib.parse.quote(f"Halo, saya {nama_pembeli} mau order...")
-                        wa_url = f"https://api.whatsapp.com/send?phone={wa_target}&text={encoded_text}"
+                        list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
+                        text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
+                        st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
+                
+                if st.button("Bersihkan Keranjang", use_container_width=True):
+                    st.session_state.cart = []; st.rerun()
+
+                # # Ganti blok tombol WA dengan ini agar aman di hosting mana pun
+                # if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
+                #     if not nama_pembeli:
+                #         st.error("Masukkan nama dulu min!")
+                #     else:
+                #         wa_target = get_wa_number()
+                #         encoded_text = urllib.parse.quote(f"Halo, saya {nama_pembeli} mau order...")
+                #         wa_url = f"https://api.whatsapp.com/send?phone={wa_target}&text={encoded_text}"
                         
-                        # Tampilkan link manual yang akan membuka tab baru (pasti berhasil)
-                        st.markdown(f"""
-                            <a href="{wa_url}" target="_blank" style="text-decoration:none;">
-                                <div style="text-align:center; padding:15px; background-color:#25d366; color:white; border-radius:10px; font-weight:bold;">
-                                    KLIK DISINI UNTUK KIRIM WA
-                                </div>
-                            </a>
-                        """, unsafe_allow_html=True)
+                #         # Tampilkan link manual yang akan membuka tab baru (pasti berhasil)
+                #         st.markdown(f"""
+                #             <a href="{wa_url}" target="_blank" style="text-decoration:none;">
+                #                 <div style="text-align:center; padding:15px; background-color:#25d366; color:white; border-radius:10px; font-weight:bold;">
+                #                     KLIK DISINI UNTUK KIRIM WA
+                #                 </div>
+                #             </a>
+                #         """, unsafe_allow_html=True)
 
 #login admin
     elif menu == "🔐 Login Admin":
