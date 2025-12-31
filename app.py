@@ -456,30 +456,23 @@ def main():
                 # if st.button("Bersihkan Keranjang", use_container_width=True):
                 #     st.session_state.cart = []; st.rerun()
 
+                # Ganti blok tombol WA dengan ini agar aman di hosting mana pun
                 if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
                     if not nama_pembeli:
                         st.error("Masukkan nama dulu min!")
                     else:
-                        # 1. Ambil nomor WA terbaru dari database (Hasil input Admin)
                         wa_target = get_wa_number()
+                        encoded_text = urllib.parse.quote(f"Halo, saya {nama_pembeli} mau order...")
+                        wa_url = f"https://api.whatsapp.com/send?phone={wa_target}&text={encoded_text}"
                         
-                        # 2. Susun pesan belanjaan
-                        list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
-                        text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
-                        
-                        # 3. Buat URL resmi WhatsApp API
-                        wa_url = f"https://api.whatsapp.com/send?phone={wa_target}&text={urllib.parse.quote(text_wa)}"
-                        
-                        # 4. SOLUSI: Gunakan JavaScript untuk memaksa buka di TAB BARU (Bukan Refresh)
-                        # Ini cara paling ampuh di Streamlit Cloud agar tidak diblokir browser
-                        js = f"window.open('{wa_url}')"
-                        st.components.v1.html(f"""
-                            <script>{js}</script>
-                            <div style="text-align:center; padding:10px; background:#e1ffc7; border-radius:10px;">
-                                <p>Menghubungkan ke WhatsApp...</p>
-                                <a href="{wa_url}" target="_blank" style="color:#25d366; font-weight:bold;">Klik di sini jika tidak otomatis terbuka</a>
-                            </div>
-                        """, height=100)
+                        # Tampilkan link manual yang akan membuka tab baru (pasti berhasil)
+                        st.markdown(f"""
+                            <a href="{wa_url}" target="_blank" style="text-decoration:none;">
+                                <div style="text-align:center; padding:15px; background-color:#25d366; color:white; border-radius:10px; font-weight:bold;">
+                                    KLIK DISINI UNTUK KIRIM WA
+                                </div>
+                            </a>
+                        """, unsafe_allow_html=True)
 
 #login admin
     elif menu == "🔐 Login Admin":
