@@ -334,9 +334,14 @@ def run_query(query, params=None):
         return None
 
 # --- FUNGSI SETTINGS WA ---
-def get_wa_number():
-    res = run_query("SELECT wa_number FROM settings WHERE id = 1")
-    return res[0]['wa_number'] if res else "628123456789"
+# def get_wa_number():
+#     res = run_query("SELECT wa_number FROM settings WHERE id = 1")
+#     return res[0]['wa_number'] if res else "628123456789"
+
+# KODE BARU (PASTI BISA)
+wa_url = f"https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}"
+st.link_button("🚀 KLIK UNTUK LANJUT KE WHATSAPP", wa_url, use_container_width=True, type="primary")
+st.info("Klik tombol di atas untuk mengirim detail pesanan ke Admin.")
 
 def login_admin(username, password):
     user = run_query("SELECT * FROM admins WHERE username = %s AND password = %s", (username, password))
