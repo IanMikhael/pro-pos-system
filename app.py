@@ -334,14 +334,11 @@ def run_query(query, params=None):
         return None
 
 # --- FUNGSI SETTINGS WA ---
-# def get_wa_number():
-#     res = run_query("SELECT wa_number FROM settings WHERE id = 1")
-#     return res[0]['wa_number'] if res else "628123456789"
+def get_wa_number():
+    res = run_query("SELECT wa_number FROM settings WHERE id = 1")
+    return res[0]['wa_number'] if res else "628123456789"
 
-# KODE BARU (PASTI BISA)
-wa_url = f"https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}"
-st.link_button("🚀 KLIK UNTUK LANJUT KE WHATSAPP", wa_url, use_container_width=True, type="primary")
-st.info("Klik tombol di atas untuk mengirim detail pesanan ke Admin.")
+
 
 def login_admin(username, password):
     user = run_query("SELECT * FROM admins WHERE username = %s AND password = %s", (username, password))
@@ -447,17 +444,42 @@ def main():
                 st.subheader(f"Total: Rp {subtotal:,}")
                 nama_pembeli = st.text_input("Nama Anda", placeholder="Contoh: Budi")
                 
+                # if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
+                #     if not nama_pembeli:
+                #         st.error("Masukkan nama dulu min!")
+                #     else:
+                #         wa_target = get_wa_number()
+                #         list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
+                #         text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
+                #         st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
+                
+                # if st.button("Bersihkan Keranjang", use_container_width=True):
+                #     st.session_state.cart = []; st.rerun()
+
                 if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
                     if not nama_pembeli:
                         st.error("Masukkan nama dulu min!")
                     else:
+                        # 1. Ambil nomor WA terbaru dari database (Hasil input Admin)
                         wa_target = get_wa_number()
+                        
+                        # 2. Susun pesan belanjaan
                         list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
                         text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
-                        st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
-                
-                if st.button("Bersihkan Keranjang", use_container_width=True):
-                    st.session_state.cart = []; st.rerun()
+                        
+                        # 3. Buat URL resmi WhatsApp API
+                        wa_url = f"https://api.whatsapp.com/send?phone={wa_target}&text={urllib.parse.quote(text_wa)}"
+                        
+                        # 4. SOLUSI: Gunakan JavaScript untuk memaksa buka di TAB BARU (Bukan Refresh)
+                        # Ini cara paling ampuh di Streamlit Cloud agar tidak diblokir browser
+                        js = f"window.open('{wa_url}')"
+                        st.components.v1.html(f"""
+                            <script>{js}</script>
+                            <div style="text-align:center; padding:10px; background:#e1ffc7; border-radius:10px;">
+                                <p>Menghubungkan ke WhatsApp...</p>
+                                <a href="{wa_url}" target="_blank" style="color:#25d366; font-weight:bold;">Klik di sini jika tidak otomatis terbuka</a>
+                            </div>
+                        """, height=100)
 
 #login admin
     elif menu == "🔐 Login Admin":
