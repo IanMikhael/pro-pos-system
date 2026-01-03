@@ -300,23 +300,13 @@ def process_image(uploaded_file):
 #         host="localhost", user="root", password="", database="pos_system"
 #     )
 
-# def get_connection():
-#     return mysql.connector.connect(
-#         host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
-#         port=4000,
-#         user="2i4trFqj4YhT8Uo.root",
-#         password="366deYjPy9LOrl64",
-#         database="test",
-#         autocommit=True
-#     )
-
 def get_connection():
     return mysql.connector.connect(
-        host=st.secrets["mysql"]["host"],
-        port=st.secrets["mysql"]["port"],
-        user=st.secrets["mysql"]["user"],
-        password=st.secrets["mysql"]["password"],
-        database=st.secrets["mysql"]["database"],
+        host="gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
+        port=4000,
+        user="2i4trFqj4YhT8Uo.root",
+        password="366deYjPy9LOrl64",
+        database="test",
         autocommit=True
     )
 
@@ -337,6 +327,7 @@ def run_query(query, params=None):
 def get_wa_number():
     res = run_query("SELECT wa_number FROM settings WHERE id = 1")
     return res[0]['wa_number'] if res else "628123456789"
+
 
 def login_admin(username, password):
     user = run_query("SELECT * FROM admins WHERE username = %s AND password = %s", (username, password))
@@ -442,33 +433,32 @@ def main():
                 st.subheader(f"Total: Rp {subtotal:,}")
                 nama_pembeli = st.text_input("Nama Anda", placeholder="Contoh: Budi")
                 
-                # if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
-                #     if not nama_pembeli:
-                #         st.error("Masukkan nama dulu min!")
-                #     else:
-                #         wa_target = get_wa_number()
-                #         list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
-                #         text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
-                #         st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
-                
                 if st.button("✅ Bayar via WhatsApp", use_container_width=True, type="primary"):
-    if not nama_pembeli:
-        st.error("Masukkan nama dulu min!")
-    else:
-        wa_target = get_wa_number()
-        list_belanja = "\n".join([
-            f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}"
-            for j, it in enumerate(st.session_state.cart)
-        ])
-        text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
+                    if not nama_pembeli:
+                        st.error("Masukkan nama dulu min!")
+                    else:
+                        wa_target = get_wa_number()
+                        list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
+                        text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
+                        st.markdown(f'<meta http-equiv="refresh" content="0;URL=\'https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}\'" />', unsafe_allow_html=True)
 
-        # ✅ INI PENGGANTINYA
-        wa_url = f"https://wa.me/{wa_target}?text={urllib.parse.quote(text_wa)}"
-        st.success("Order siap dikirim via WhatsApp 👇")
-        st.link_button("📲 Lanjutkan ke WhatsApp", wa_url, use_container_width=True)
-
-
-        if st.button("Bersihkan Keranjang", use_container_width=True):
+                    # if not nama_pembeli:
+                    #     st.error("Masukkan nama dulu min!")
+                    # else:
+                    #     wa_target = get_wa_number()
+                    #     list_belanja = "\n".join([f"{j+1}. {it['nama']} ({it['qty']}x) - Rp {it['harga']*it['qty']:,}" for j, it in enumerate(st.session_state.cart)])
+    
+                    # # Pesan teks
+                    # text_wa = f"*ORDER BARU - PRO-POS*\n\nNama: {nama_pembeli}\n---------------------------\n{list_belanja}\n---------------------------\n*Subtotal: Rp {subtotal:,}*"
+                    
+                    # # Encode teks agar aman untuk URL
+                    # encoded_text = urllib.parse.quote(text_wa)
+                    # wa_url = f"https://wa.me/{wa_target}?text={encoded_text}"
+                    
+                    # # Gunakan Link Button agar lebih resmi dan stabil
+                    # st.link_button("🚀 Konfirmasi Pesanan ke WhatsApp", wa_url, use_container_width=True, type="primary")
+                
+                if st.button("Bersihkan Keranjang", use_container_width=True):
                     st.session_state.cart = []; st.rerun()
 
 #login admin
@@ -842,9 +832,12 @@ def main():
             if st.form_submit_button("Simpan Perubahan"):
                 run_query("UPDATE settings SET wa_number = %s WHERE id = 1", (new_wa,))
                 st.success("Nomor WhatsApp berhasil diperbarui!"); st.rerun()
-
+        
     elif menu == "🚪 Logout":
         st.session_state.update({'logged_in': False, 'user_role': None}); st.rerun()
 
 if __name__ == "__main__":
     main()
+
+
+
